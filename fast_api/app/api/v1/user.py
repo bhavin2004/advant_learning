@@ -1,8 +1,8 @@
 from fastapi import APIRouter,Path,HTTPException
 from starlette import status
-from ....utils.utils import user_dependency,db_config
-from ....schemas.schemas import UserPasswordRequest
-from ....services.internal.user_service import get_user_detail_service,change_password_service,change_phone_number_service
+from ...utils.utils import user_dependency,db_config
+from ...schemas.schemas import UserPasswordRequest
+from ...services.repositories.user_repo import UserRepo
  
 
 router = APIRouter(
@@ -15,8 +15,8 @@ router = APIRouter(
 def get_user_details(user:user_dependency,db:db_config):
     if not user:
         raise HTTPException(401,"Authentocation Failed")    
-    
-    res = get_user_detail_service(user.get("id"),db)
+    user_repo = UserRepo(db)
+    res = user_repo.get_user_details_by_user_id(user.get("id"))
     if res:
         return res
     raise HTTPException(404,"NO RECORDS FOUND")
@@ -25,8 +25,10 @@ def get_user_details(user:user_dependency,db:db_config):
 def change_password(user:user_dependency,db:db_config,password_request:UserPasswordRequest):
     if not user:
         raise HTTPException(401,"Authentocation Failed")
-    change_password_service(user.get('id'),password_request.current_pwd,password_request.new_pwd,db)
-    
+    user_repo = UserRepo(db)
+    res = user_repo.change_user_pwd(user.get('id'),password_request.current_pwd,password_request.new_pwd)
+    if not res:
+        raise HTTPException(404,"NO RECORDS FOUND")
         
     # raise HTTPException(404,"NO RECORDS FOUND")
     
@@ -35,6 +37,8 @@ def change_phone_number(user:user_dependency,db:db_config,phone_no:str = Path(mi
 
     if not user:
         raise HTTPException(401,"Authentocation Failed")
-    
-    change_phone_number_service(user.get('id'),phone_no,db)
-    
+    user_repo = UserRepo(db)
+
+    res = user_repo.change_phone_no(user.get('id'),phone_no)
+    if not res:
+        raise HTTPException(404,"NO RECORDS FOUND")

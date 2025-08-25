@@ -1,16 +1,17 @@
-from fastapi import FastAPI,Request
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
+
 from .core.database import Base
 from .core.database import engine
-from .app.api.v1 import auth,todo,admin,user
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from .api.v1 import auth, todo, admin, user
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
 # templates = Jinja2Templates(directory="todo/templates")
-app.mount('/static',StaticFiles(directory='fast_api/static'),name='static')
+app.mount('/static',StaticFiles(directory='app/static'),name='static')
 
 @app.get("/")
 def home(request: Request):
