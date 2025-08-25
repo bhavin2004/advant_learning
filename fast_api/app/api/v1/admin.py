@@ -1,7 +1,7 @@
 from fastapi import APIRouter,Path,HTTPException
-from ....models.models import Todo
 from starlette import status
 from ....utils.utils import user_dependency,db_config
+from ....services.internal.admin_service import get_all_todo_service,get_todo_by_id_service,delete_todo_service
  
 
 router = APIRouter(
@@ -16,7 +16,7 @@ def get_all_todos(user:user_dependency,db:db_config):
     if not user or user['role'] != 'admin':
         raise HTTPException(401,"Authentocation Failed")
     
-    res = db.query(Todo).all()
+    res = get_all_todo_service(db)
     if res:
         return res
     raise HTTPException(404,"NO RECORDS FOUND")
@@ -27,10 +27,8 @@ def delete_todo(user:user_dependency,
     if not user or user['role'] != 'admin':
         raise HTTPException(401,"Authentocation Failed")
  
-    todo_model = db.query(Todo).filter(Todo.id == todo_id).first()
+    todo_model = get_todo_by_id_service(todo_id,db)
     
     if not todo_model:
         raise HTTPException(404,"Todo Not Found")
-    print(db.query(Todo).filter(Todo.id == todo_id).delete())
-    
-    db.commit()
+    delete_todo_service(todo_id,db)

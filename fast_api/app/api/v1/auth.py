@@ -3,11 +3,12 @@ from ....schemas.schemas import UserRequest
 from ....models.models import Users
 from typing import Annotated
 from starlette import status
-from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 import os
-from ....utils.utils import db_config,bcrypt_contest,authenticate_user,create_access_token,get_current_user
+from ....utils.utils import db_config,bcrypt_contest,authenticate_user,create_access_token
+from ....services.internal.auth_service import create_user_service
 
 
 router = APIRouter(
@@ -27,18 +28,9 @@ templates = Jinja2Templates(directory="fast_api/templates")
 @router.post('/',status_code=status.HTTP_201_CREATED)
 def create_user(create_user_request: UserRequest,
                 db: db_config):
-    create_user_model = Users(
-        email = create_user_request.email,
-        username = create_user_request.username,
-          first_name = create_user_request.first_name,
-        last_name = create_user_request.last_name,
-        hashed_password = bcrypt_contest.hash(create_user_request   .password),
-        is_active = True,
-        role = create_user_request.role,
-        phone_number = create_user_request.phone_number
-    )
-    db.add(create_user_model)
-    db.commit()
+    if not create_user_service(create_user_request,db):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        
     
     # return create_user_model
 
