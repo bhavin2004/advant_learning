@@ -10,7 +10,7 @@ from ...utils.utils import db_config,bcrypt_contest,authenticate_user,create_acc
 from ...services.repositories.auth_repo import AuthRepo
 
 # asdkaposdk
-hioi
+
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
