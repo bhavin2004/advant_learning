@@ -1,32 +1,58 @@
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from ...models.models import Users
-from ...utils.utils import bcrypt_contest,authenticate_user
-
-class UserRepo:
-    def __init__(self,db: Session):
-        self.db = db
-
-    def get_user_details_by_user_id(self,user_id:int):
-        return self.db.query(Users).filter(Users.id == user_id).first()
+from ...utils.utils import bcrypt_contest
+from ...schemas.schemas import UserRequest
 
 
-    def change_user_pwd(self,user_id:int,current_pwd:str,new_pwd:str):
-        user = self.get_user_details_by_user_id(user_id)
-        if not authenticate_user(user.username,current_pwd,self.db):
-            raise HTTPException(401,"Authentocation Failed")
-        user.hashed_password = bcrypt_contest.encrypt(new_pwd)
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
-        return user
+
+def create_user(create_user_request:UserRequest,db:Session):
+    user_model = Users(
+                email=create_user_request.email,
+                username=create_user_request.username,
+                first_name=create_user_request.first_name,
+                last_name=create_user_request.last_name,
+                hashed_password=bcrypt_contest.hash(create_user_request.password),
+                is_active=True,
+                role=create_user_request.role,
+                phone_number=create_user_request.phone_number
+            )
+    db.add(user_model)
+    db.commit()
+    db.refresh(user_model)
+    return user_model   
+
+def get_user_by_id(user_id:int,db:Session):
+    return db.query(Users).filter(Users.id == user_id).first()
 
 
-    def change_phone_no(self,user_id:int,phone_no:str):
-        user = self.get_user_details_by_user_id(user_id)
-        user.phone_number = phone_no
+def get_user_by_email(email:str,db:Session):
+    return db.query(Users).filter(Users.email == email).first()
 
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
-        return user
+
+def list_users(db:Session):
+    return db.query(Users).all()
+
+
+def change_user_pwd(user:Users,new_pwd:str,db:Session):
+    user.hashed_password = bcrypt_contest.hash(new_pwd)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def change_phone_no(user:Users,phone_no:str,db:Session):
+    user.phone_number = phone_no
+    
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+def delete_user(user_id:int,db:Session):
+    user = get_user_by_id(user_id,db)
+    if user:
+        db.delete(user)
+        db.commit()
+    return user
+
