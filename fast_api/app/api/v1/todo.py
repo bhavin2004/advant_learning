@@ -2,9 +2,9 @@ from fastapi import APIRouter,Path,HTTPException,Request
 from starlette import status
 from starlette.responses import  RedirectResponse
 from fastapi.templating import  Jinja2Templates
-from ....utils.utils import user_dependency,db_config,get_current_user
-from ....schemas.schemas import TodoRequest
-from ....services.internal.todo_service import get_todo_by_id_service,list_user_todos,create_new_todo,update_existing_todo,delete_todo_service
+from ...utils.utils import user_dependency,db_config,get_current_user
+from ...schemas.schemas import TodoRequest
+from ...services.internal.todo_service import get_todo_by_id_service,list_user_todos,create_new_todo,update_existing_todo,delete_todo_service
 
 router = APIRouter(
     prefix='/todos',

@@ -1,7 +1,7 @@
 from fastapi import APIRouter,Path,HTTPException
 from starlette import status
-from ....utils.utils import user_dependency,db_config
-from ....services.internal.todo_service import list_all_todos,get_todo_by_id_service,delete_todo_service
+from ...services.internal.todo_service import list_all_todos,get_todo_by_id_service,delete_todo_service
+from ...utils.utils import user_dependency,db_config
  
 
 router = APIRouter(
