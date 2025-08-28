@@ -1,13 +1,13 @@
 from fastapi import APIRouter,Depends,HTTPException,Request
-from ...schemas.schemas import UserRequest
+from ....schemas.schemas import UserRequest
 from typing import Annotated
 from starlette import status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 import os
-from ...utils.utils import db_config,bcrypt_contest,authenticate_user,create_access_token
-from ...services.internal.user_service import create_user_service
+from ....utils.utils import db_config,bcrypt_contest,authenticate_user,create_access_token
+from ....services.internal.user_service import create_user_service
 
 # asdkaposdk
 
@@ -22,14 +22,13 @@ ALGO = os.getenv('ALGO')
 
 
 
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory="fast_api/templates")
 
 
 @router.post('/',status_code=status.HTTP_201_CREATED)
 def create_user(create_user_request: UserRequest,
                 db: db_config):
-    auth_repo = AuthRepo(db)
-    if not auth_repo.create_user(create_user_request):
+    if not create_user_service(create_user_request,db):
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
         
     
