@@ -17,6 +17,7 @@ def get_all_todos(user:user_dependency,db:db_config):
         raise HTTPException(401,"Authentocation Failed")
     
     res = list_all_todos(db)
+    res = list_all_todos(db)
     if res:
         return res
     raise HTTPException(404,"NO RECORDS FOUND")

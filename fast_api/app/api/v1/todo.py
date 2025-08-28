@@ -30,6 +30,7 @@ async def render_todo_page(request: Request,db: db_config):
             return redirect_to_login()
 
         todos = list_user_todos(user.get('id'),db)
+        todos = list_user_todos(user.get('id'),db)
 
         return templates.TemplateResponse('todo.html',{'request':request,'todos':todos,'user':user})
     except Exception:
@@ -56,6 +57,7 @@ async def edit_todo_page(request: Request,db: db_config, todo_id: int):
         if user is None:
             return redirect_to_login()
         todo = get_todo_by_id_service(todo_id,db,user.get('id'))
+        todo = get_todo_by_id_service(todo_id,db,user.get('id'))
         return templates.TemplateResponse('edit-todo.html',{'request':request,'user':user,'todo':todo})
     except Exception:
         return redirect_to_login()
@@ -70,6 +72,8 @@ def read_all(db: db_config,
         raise HTTPException(401,"Authentocation Failed")
 
     res = list_user_todos(user.get('id'),db)
+
+    res = list_user_todos(user.get('id'),db)
     if res:
         return res
     raise HTTPException(404,"NO RECORDS FOUND")
@@ -78,6 +82,8 @@ def read_all(db: db_config,
 def read_todo_by_id(user:user_dependency,db:db_config,todo_id:int = Path(gt=0)):
     if not user:
         raise HTTPException(401,"Authentocation Failed")
+
+    todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
 
     todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
     if todo_model: 
@@ -91,6 +97,7 @@ def create_todo(user:user_dependency,db:db_config,todo_request: TodoRequest):
         raise HTTPException(401,"Authentocation Failed")
 
     create_new_todo(user.get("id"),todo_request,db)
+    create_new_todo(user.get("id"),todo_request,db)
     
 @router.put('/todo/{todo_id}',status_code=status.HTTP_204_NO_CONTENT)
 def update_todo(user:user_dependency,db:db_config, todo_req: TodoRequest, todo_id:int = Path(gt=0)):
@@ -99,8 +106,13 @@ def update_todo(user:user_dependency,db:db_config, todo_req: TodoRequest, todo_i
         raise HTTPException(401,"Authentocation Failed")
 
     todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
+
+    todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
     if not todo_model:
         raise HTTPException(404,"Todo Not Found")
+
+    update_existing_todo(user.get('id'),todo_id,todo_req,db)
+
 
     update_existing_todo(user.get('id'),todo_id,todo_req,db)
 
@@ -112,7 +124,12 @@ def delete_todo(user:user_dependency,
 
     todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
 
+
+    todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
+
     if not todo_model:
         raise HTTPException(404,"Todo Not Found")
+
+    delete_todo_service(todo_id,db)
 
     delete_todo_service(todo_id,db)
