@@ -1,8 +1,8 @@
 from fastapi import APIRouter,Path,HTTPException
 from starlette import status
-from ....utils.utils import user_dependency,db_config
-from ....schemas.schemas import UserPasswordRequest
-from ....services.internal.user_service import change_password_service, change_phone_number_service, get_user_detail
+from ...utils.utils import user_dependency,db_config
+from ...schemas.schemas import UserPasswordRequest
+from ...services.internal.user_service import change_password_service, change_phone_number_service, get_user_detail
  
 
 router = APIRouter(
