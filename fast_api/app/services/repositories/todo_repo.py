@@ -2,43 +2,42 @@ from sqlalchemy.orm import Session
 from ...models.models import Todo
 from ...schemas.schemas import TodoRequest
 
-class TodoRepo:
-    def __init__(self, db: Session):
-        self.db = db
 
-    def get_todo(self,user_id:int):
-        return self.db.query(Todo).filter(Todo.owner_id == user_id).all()
-
-    def get_todo_by_id_of_user(self,user_id:int,todo_id:int):
-        return self.db.query(Todo).filter(Todo.id == todo_id).filter(Todo.owner_id == user_id).first()
+def get_todo(user_id:int,db:Session):
+    return db.query(Todo).filter(Todo.owner_id == user_id).all()
 
 
-    def create_todo_for_user(self,user_id:int,todo_request:TodoRequest):
-       try:
-           todomodel = Todo(**todo_request.model_dump(), owner_id=user_id)
+def list_all_todo(db:Session):
+    return db.query(Todo).all()
 
-           self.db.add(todomodel)
-           self.db.commit()
-           self.db.refresh(todomodel)
-           return todomodel
-       except:
-           return None
-
-    def update_todo_for_user(self,todo_model:Todo,todo_req:TodoRequest):
-        todo_model.title = todo_req.title
-        todo_model.description = todo_req.description
-        todo_model.priority = todo_req.priority
-        todo_model.complete = todo_req.complete
-        self.db.add(todo_model)
-        self.db.commit()
-        self.db.refresh(todo_model)
-        return todo_model
+def get_todo_by_id(todo_id:int,db:Session,user_id:int|None=None):
+    todo = db.query(Todo).filter(Todo.id == todo_id)
+    if user_id:
+        todo = todo.filter(Todo.owner_id == user_id)
+    return todo.first()
 
 
+def create_todo(user_id:int,todo_request:TodoRequest,db:Session):
+    todomodel =  Todo(**todo_request.model_dump(),owner_id = user_id)
+    
+    db.add(todomodel)
+    db.commit()
+    db.refresh(todomodel)
+    return todomodel
+    
+def update_todo(todo_model: Todo, todo_req: TodoRequest, db: Session):
+    for key, value in todo_req.model_dump(exclude_unset=True).items():
+        setattr(todo_model, key, value)
+    db.commit()
+    db.refresh(todo_model)
+    return todo_model
 
-    def delete_todo_for_user(self,todo_id:int):
-        todo = self.db.query(Todo).filter(Todo.id == todo_id).first()
-        if todo:
-            self.db.delete(todo)
-            self.db.commit()
 
+    
+    
+def delete_todo(todo_id:int,db:Session):
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if todo:
+        db.delete(todo)
+        db.commit()
+    return None

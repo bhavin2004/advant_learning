@@ -1,10 +1,9 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
-from fastapi.staticfiles import StaticFiles
-
+from fastapi import FastAPI,Request
 from .core.database import Base
 from .core.database import engine
-from .api.v1 import auth, todo, admin, user
+from .api.v1 import auth,todo,admin,user
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 

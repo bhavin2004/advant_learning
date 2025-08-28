@@ -7,8 +7,10 @@ from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 import os
 from ...utils.utils import db_config,bcrypt_contest,authenticate_user,create_access_token
-from ...services.repositories.auth_repo import AuthRepo
+from ...services.internal.user_service import create_user_service
 
+# asdkaposdk
+# asdkaposdk
 
 router = APIRouter(
     prefix='/auth',
@@ -27,8 +29,7 @@ templates = Jinja2Templates(directory="app/templates")
 @router.post('/',status_code=status.HTTP_201_CREATED)
 def create_user(create_user_request: UserRequest,
                 db: db_config):
-    auth_repo = AuthRepo(db)
-    if not auth_repo.create_user(create_user_request):
+    if not create_user_service(create_user_request,db):
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
         
     
