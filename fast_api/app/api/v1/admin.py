@@ -1,7 +1,7 @@
 from fastapi import APIRouter,Path,HTTPException
 from starlette import status
 from ....utils.utils import user_dependency,db_config
-from ....services.internal.admin_service import get_all_todo_service,get_todo_by_id_service,delete_todo_service
+from ....services.internal.todo_service import list_all_todos,get_todo_by_id_service,delete_todo_service
  
 
 router = APIRouter(
@@ -16,7 +16,7 @@ def get_all_todos(user:user_dependency,db:db_config):
     if not user or user['role'] != 'admin':
         raise HTTPException(401,"Authentocation Failed")
     
-    res = get_all_todo_service(db)
+    res = list_all_todos(db)
     if res:
         return res
     raise HTTPException(404,"NO RECORDS FOUND")

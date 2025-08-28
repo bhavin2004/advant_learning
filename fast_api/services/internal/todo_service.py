@@ -1,26 +1,38 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from ..repositories.todo_repo import get_todo,get_todo_by_id,create_todo,update_todo,delete_todo,list_all_todo
 from ...schemas.schemas import TodoRequest
-from ...services.repositories.todo_repo import get_todo,get_todo_by_id_of_user,create_todo_for_user,update_todo_for_user,delete_todo_for_user
 
 
-def list_todos_service(user_id:int, db: Session):
+def list_user_todos(user_id: int, db: Session):
     return get_todo(user_id, db)
 
 
-def get_todo_for_user_service(user_id:int, todo_id: int, db: Session):
-    todo = get_todo_by_id_of_user(user_id, todo_id, db)
+def list_all_todos(db: Session):
+    return list_all_todo(db)
+
+
+def get_todo_by_id_service( todo_id: int, db: Session,user_id: int|None=None):
+    todo = get_todo_by_id(todo_id, db, user_id)
+    if not todo:
+        raise HTTPException(404,"Todo Not Found.")
     return todo
 
 
-def create_todo_service(user_id: int, todo_req: TodoRequest, db: Session):
-    return create_todo_for_user(user_id, todo_req, db)
+def create_new_todo(user_id: int, todo_request: TodoRequest, db: Session):
+    return create_todo(user_id, todo_request, db)
 
 
-def update_todo_service(user_id:int, todo_id: int, todo_req: TodoRequest, db: Session):
-    todo = get_todo_for_user_service(user_id, todo_id, db)
-    return update_todo_for_user(todo, todo_req, db)
+def update_existing_todo(user_id: int, todo_id: int, todo_req: TodoRequest, db: Session):
+    todo = get_todo_by_id_service(todo_id, db, user_id)
+    if not todo:
+        raise HTTPException(404,"Todo Not Found.")
+    return update_todo(todo, todo_req, db)
 
 
-def delete_todo_service(user_id:int, todo_id: int, db: Session):
-    return delete_todo_for_user(todo_id, db)
-    
+def delete_todo_service(todo_id: int, db: Session):
+
+    delete_todo(todo_id, db)
+    return {"message": "Todo deleted successfully"}
+
+

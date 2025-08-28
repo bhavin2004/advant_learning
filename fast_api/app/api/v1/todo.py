@@ -4,7 +4,7 @@ from starlette.responses import  RedirectResponse
 from fastapi.templating import  Jinja2Templates
 from ....utils.utils import user_dependency,db_config,get_current_user
 from ....schemas.schemas import TodoRequest
-from ....services.internal.todo_service import list_todos_service,get_todo_for_user_service,create_todo_service,update_todo_service,delete_todo_service
+from ....services.internal.todo_service import get_todo_by_id_service,list_user_todos,create_new_todo,update_existing_todo,delete_todo_service
 
 router = APIRouter(
     prefix='/todos',
@@ -29,7 +29,7 @@ async def render_todo_page(request: Request,db: db_config):
         if user is None:
             return redirect_to_login()
 
-        todos = list_todos_service(user.get('id'),db)
+        todos = list_user_todos(user.get('id'),db)
 
         return templates.TemplateResponse('todo.html',{'request':request,'todos':todos,'user':user})
     except Exception:
@@ -55,7 +55,7 @@ async def edit_todo_page(request: Request,db: db_config, todo_id: int):
 
         if user is None:
             return redirect_to_login()
-        todo = get_todo_for_user_service(user.get('id'),todo_id,db)
+        todo = get_todo_by_id_service(todo_id,db,user.get('id'))
         return templates.TemplateResponse('edit-todo.html',{'request':request,'user':user,'todo':todo})
     except Exception:
         return redirect_to_login()
@@ -68,8 +68,8 @@ def read_all(db: db_config,
              user:user_dependency):
     if not user:
         raise HTTPException(401,"Authentocation Failed")
-      
-    res = list_todos_service(user.get('id'),db)
+
+    res = list_user_todos(user.get('id'),db)
     if res:
         return res
     raise HTTPException(404,"NO RECORDS FOUND")
@@ -78,8 +78,8 @@ def read_all(db: db_config,
 def read_todo_by_id(user:user_dependency,db:db_config,todo_id:int = Path(gt=0)):
     if not user:
         raise HTTPException(401,"Authentocation Failed")
-    
-    todo_model = get_todo_for_user_service(user.get('id'),todo_id,db)
+
+    todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
     if todo_model: 
         return todo_model
     raise HTTPException(404,"Todo Not Found.")
@@ -90,29 +90,29 @@ def create_todo(user:user_dependency,db:db_config,todo_request: TodoRequest):
     if not user:
         raise HTTPException(401,"Authentocation Failed")
 
-    create_todo_service(user.get("id"),todo_request,db)
+    create_new_todo(user.get("id"),todo_request,db)
     
 @router.put('/todo/{todo_id}',status_code=status.HTTP_204_NO_CONTENT)
 def update_todo(user:user_dependency,db:db_config, todo_req: TodoRequest, todo_id:int = Path(gt=0)):
 
     if not user:
         raise HTTPException(401,"Authentocation Failed")
- 
-    todo_model = get_todo_for_user_service(user.get('id'),todo_id,db)
+
+    todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
     if not todo_model:
         raise HTTPException(404,"Todo Not Found")
-     
-    update_todo_service(user.get('id'),todo_id,todo_req,db)
-    
+
+    update_existing_todo(user.get('id'),todo_id,todo_req,db)
+
 @router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_todo(user:user_dependency,
                 db: db_config,todo_id : int = Path(gt=0)):
     if not user:
         raise HTTPException(401,"Authentocation Failed")
- 
-    todo_model = get_todo_for_user_service(user.get('id'),todo_id,db)
-    
+
+    todo_model = get_todo_by_id_service(todo_id,db,user.get('id'))
+
     if not todo_model:
         raise HTTPException(404,"Todo Not Found")
-    
-    delete_todo_service(user.get('id'),todo_id,db)
+
+    delete_todo_service(todo_id,db)

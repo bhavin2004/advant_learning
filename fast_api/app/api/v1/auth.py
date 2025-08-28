@@ -1,6 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException,Request
 from ....schemas.schemas import UserRequest
-from ....models.models import Users
 from typing import Annotated
 from starlette import status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -8,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 import os
 from ....utils.utils import db_config,bcrypt_contest,authenticate_user,create_access_token
-from ....services.internal.auth_service import create_user_service
+from ....services.internal.user_service import create_user_service
 
 # asdkaposdk
 

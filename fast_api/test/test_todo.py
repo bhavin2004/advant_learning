@@ -80,7 +80,7 @@ def test_update_todo_not_found(test_data):
     }
     response = client.put("/todos/todo/999",json=request_data)
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {'detail':"Todo Not Found"}
+    assert response.json() == {'detail':"Todo Not Found."}
     return
 
 def test_delete_todo(test_data):
@@ -95,6 +95,6 @@ def test_delete_todo(test_data):
 def test_delete_todo_not_found(test_data):
     response = client.delete("/todos/todo/9999")
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {'detail':"Todo Not Found"}
+    assert response.json() == {'detail':"Todo Not Found."}
     
 

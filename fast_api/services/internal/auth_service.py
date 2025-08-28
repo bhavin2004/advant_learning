@@ -1,6 +1,6 @@
-from ..repositories.auth_repo import create_user
-from ...schemas.schemas import UserRequest
+from ..repositories.auth_repo import verify_user_credentials
 from sqlalchemy.orm import Session
 
-def create_user_service(create_user_request:UserRequest,db:Session):
-    return create_user(create_user_request,db)
+def authenticate_user_service(username:str,password:str,db:Session):
+    return verify_user_credentials(username,password,db)
+     
