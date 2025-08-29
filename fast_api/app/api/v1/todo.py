@@ -2,7 +2,7 @@ from fastapi import APIRouter,Path,HTTPException,Request
 from starlette import status
 from starlette.responses import  RedirectResponse
 from fastapi.templating import  Jinja2Templates
-from ...utils.utils import user_dependency,db_config,get_current_user
+from ...utils.utils import user_dependency,db_config,user_config
 from ...schemas.schemas import TodoRequest
 from ...services.internal.todo_service import get_todo_by_id_service,list_user_todos,create_new_todo,update_existing_todo,delete_todo_service
 
@@ -22,9 +22,8 @@ def redirect_to_login():
 
 ##Pages
 @router.get("/todo-page",status_code=200)
-async def render_todo_page(request: Request,db: db_config):
+async def render_todo_page(request: Request,db: db_config,user: user_config):
     try:
-        user = await get_current_user(token=request.cookies.get("access_token"))
         if user is None:
             return redirect_to_login()
 
@@ -36,10 +35,8 @@ async def render_todo_page(request: Request,db: db_config):
 
 
 @router.get('/add-todo-page',status_code=200)
-async def add_todo_page(request: Request,db: db_config):
+async def add_todo_page(request: Request,db: db_config,user: user_config):
     try:
-        user = await get_current_user(token=request.cookies.get("access_token"))
-
         if user is None:
             return redirect_to_login()
 
@@ -48,10 +45,8 @@ async def add_todo_page(request: Request,db: db_config):
         return redirect_to_login()
 
 @router.get('/edit-todo-page/{todo_id}',status_code=200)
-async def edit_todo_page(request: Request,db: db_config, todo_id: int):
+async def edit_todo_page(request: Request,db: db_config, todo_id: int,user: user_config):
     try:
-        user = await get_current_user(token=request.cookies.get("access_token"))
-
         if user is None:
             return redirect_to_login()
         todo = get_todo_by_id_service(todo_id,db,user.get('id'))

@@ -2,7 +2,7 @@ from fastapi.security import OAuth2PasswordBearer
 from ..core.database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import Annotated
-from fastapi import Depends,HTTPException
+from fastapi import Depends,HTTPException, Request
 from passlib.context import CryptContext
 from ..models.models import Users
 from datetime import timezone,datetime,timedelta
@@ -54,9 +54,28 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     except JWTError:
         raise HTTPException(401, "Could not validate user.")
 
+def get_user(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, ALGO)
+        username: str = payload.get('sub')
+        user_id: int = payload.get('id')
+        role: str = payload.get('role')
+
+        if username is None or user_id is None:
+            return None
+        return {'username': username, 'id': user_id, 'role': role}
+    except JWTError:
+        return None
+
+
 
 db_config = Annotated[Session,Depends(connect_db)]
 user_dependency = Annotated[dict,Depends(get_current_user)]
+user_config = Annotated[dict,Depends(get_user)]
+
 
 def authenticate_user(username: str,pwd:str, db:db_config):
     user = db.query(Users).filter(Users.username == username).first()
